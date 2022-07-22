@@ -9,6 +9,9 @@ pub mod ty;
 pub mod typed_variable;
 pub mod punctuated;
 
+#[macro_use]
+pub mod define_parseable_enum;
+
 use crate::error::Result;
 use stream::{Parse, ParseStream};
 use stmt::Stmt;
