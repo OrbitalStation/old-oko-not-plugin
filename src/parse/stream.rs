@@ -1,5 +1,6 @@
 use super::span::{Ident, DoubleQuotedString};
 use crate::span::{CursorPosition, Span};
+use super::punctuated::Punctuated;
 use crate::error::Error;
 
 pub type Result <T> = core::result::Result <T, ParseStreamError>;
@@ -82,6 +83,54 @@ impl <'a> ParseStream <'a> {
 
     pub fn is_empty(&self) -> bool {
         self.code.is_empty()
+    }
+
+    pub fn embraced_in_figures_or_single <T: Parse, const P: char> (&mut self) -> Result <Punctuated <T, P>> {
+        self.trim();
+
+        let mut clone = self.clone();
+        if clone.punct("=").is_ok() {
+            *self = clone;
+            return Ok(Punctuated(vec![T::parse(self)?]))
+        }
+
+        self.embraced_in_figures()
+    }
+
+    pub fn embraced_in_figures <T: Parse, const P: char> (&mut self) -> Result <Punctuated <T, P>> {
+        self.embraced::<T, P>('{', '}')
+    }
+
+    pub fn embraced <T: Parse, const P: char> (&mut self, open_delim: char, close_delim: char) -> Result <Punctuated <T, P>> {
+        self.trim();
+
+        if self.code.starts_with(open_delim) {
+            self.offset_by(open_delim.len_utf8());
+
+            let punctuated = Punctuated::parse(self)?;
+
+            self.trim();
+
+            return if self.code.starts_with(close_delim) {
+                self.offset_by(close_delim.len_utf8());
+                Ok(punctuated)
+            } else {
+                Err(ParseStreamError {
+                    span: Span::EOF,
+                    parsing_depth: self.depth,
+                    expected: format!("the second closing delimiter - `{close_delim}`"),
+                    help: vec![]
+                })
+            }
+
+        }
+
+        Err(ParseStreamError {
+            span: Span::with_extra_column(self.cursor, 1),
+            parsing_depth: self.depth,
+            expected: format!("`{open_delim} ... {close_delim}` block"),
+            help: vec![]
+        })
     }
 
     pub fn double_quoted_string(&mut self) -> Result <DoubleQuotedString> {

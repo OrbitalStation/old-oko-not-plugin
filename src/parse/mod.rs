@@ -1,6 +1,13 @@
+//!
+//! This module parses the source code and transforms it into an AST
+//! 
+
 pub mod stream;
 pub mod span;
 pub mod stmt;
+pub mod ty;
+pub mod typed_variable;
+pub mod punctuated;
 
 use crate::error::Result;
 use stream::{Parse, ParseStream};

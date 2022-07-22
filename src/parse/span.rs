@@ -1,5 +1,6 @@
-use core::fmt::{Debug, Result, Formatter};
+use core::fmt::{Debug, Result as FmtResult, Formatter};
 use crate::span::{Span, CursorPosition};
+use super::stream::{Parse, ParseStream, Result as StreamResult};
 
 ///
 /// A string value with a span attached to it
@@ -10,8 +11,15 @@ pub struct Ident {
     start: CursorPosition
 }
 
+impl Parse for Ident {
+    #[inline(always)]
+    fn parse(stream: &mut ParseStream) -> StreamResult <Self> {
+        stream.ident()
+    }
+}
+
 impl Debug for Ident {
-    fn fmt(&self, f: &mut Formatter <'_>) -> Result {
+    fn fmt(&self, f: &mut Formatter <'_>) -> FmtResult {
         f.debug_struct("Ident")
             .field("name", &self.name)
             .field("span", &self.span())
@@ -45,7 +53,7 @@ pub struct DoubleQuotedString {
 }
 
 impl Debug for DoubleQuotedString {
-    fn fmt(&self, f: &mut Formatter <'_>) -> Result {
+    fn fmt(&self, f: &mut Formatter <'_>) -> FmtResult {
         f.debug_struct("DoubleQuotedString")
             .field("value", &self.value)
             .field("span", &self.span())

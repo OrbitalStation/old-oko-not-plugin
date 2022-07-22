@@ -90,7 +90,7 @@ impl Span {
         lines[0] = &lines[0][self.start.column - 1..];
 
         let last = lines.last_mut().expect("no lines in span");
-        *last = &last[..self.end.column - 1];
+        *last = &last[..(self.end.column - 1).min(last.len())];
         if let Some(idx) = last.find(char::is_whitespace) {
             *last = &last[..idx]
         }

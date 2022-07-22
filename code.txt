@@ -1,3 +1,5 @@
-fn main = "Hello, world!"
+struct Health = hp: u8
 
-entities Player = Health + Position + PlayerControlled;
+entity Player = Health + Position + PlayerControlled;
+
+fn main = "Hello, world!"
