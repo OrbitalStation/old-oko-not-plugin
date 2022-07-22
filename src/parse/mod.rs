@@ -5,6 +5,7 @@
 pub mod stream;
 pub mod span;
 pub mod stmt;
+pub mod expr;
 pub mod ty;
 pub mod typed_variable;
 pub mod punctuated;

@@ -7,6 +7,7 @@ macro_rules! define_parseable_enum {
     ) => {
         use crate::parse::span::*;
         use crate::parse::stream::*;
+        use crate::parse::punctuated::Punctuated;
 
         $(
             #[allow(non_snake_case)]

@@ -1,5 +1,4 @@
 use super::*;
-use super::super::punctuated::Punctuated;
 
 ///
 /// entity `<name>` = `<components>`+ ;
