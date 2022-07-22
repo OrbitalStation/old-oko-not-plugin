@@ -1,0 +1,8 @@
+[package]
+name = "oko"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+c-like-concat = "0.0.2"
+owo-colors = "3.4.0"
