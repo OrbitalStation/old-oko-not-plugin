@@ -48,7 +48,7 @@ impl Termination for Result <()> {
 pub struct Error {
     pub span: Span,
     pub message: String,
-    pub lines: String,
+    pub spanned: String,
     pub clarifying: String,
     pub help: Vec <String>,
     pub filename: String,
@@ -66,10 +66,10 @@ impl Termination for Error {
         println!("{}{} {}:{:?}", &ladjust[1..], "-->".blue().bold(), self.filename, self.span.start);
         println!("{ladjust}{}", "|".blue().bold());
 
-        for (linenum, line) in self.lines.lines().enumerate() {
+        for (linenum, line) in self.spanned.split('\n').enumerate() {
             let idx = linenum + self.span.start.line;
             let idx_stringified = idx.to_string();
-            let full_line = self.code.lines().nth(idx - 1).unwrap();
+            let full_line = self.code.split('\n').nth(idx - 1).unwrap();
 
             let ladjust2 = " ".repeat(ladjust.len() - idx_stringified.len() - 1);
 
@@ -79,11 +79,17 @@ impl Termination for Error {
                 String::new()
             };
 
+            let underscoring_len = if line == "<EOF>" {
+                1
+            } else {
+                line.len()
+            };
+
             print!("{ladjust2}{idx} {stick} {line}\n{ladjust}{stick}{circumflex_ladjsust}{underscoring} ",
                 idx = idx_stringified.blue().bold(),
                 stick = "|".blue().bold(),
                 line = full_line.red(),
-                underscoring = "^".repeat(line.len()).bright_red().bold())
+                underscoring = "^".repeat(underscoring_len).bright_red().bold())
         }
 
         print_with_style_and_green_if_asterisks(&self.clarifying, |v| print!("{}", v.bright_red().bold()));

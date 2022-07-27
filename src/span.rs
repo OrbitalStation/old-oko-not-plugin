@@ -76,13 +76,32 @@ impl Span {
         }
     }
 
+    pub fn eof_or(self, code: &str) -> Self {
+        if self.start == CursorPosition::EOF {
+            let (idx, last_line) = code.split('\n').enumerate().last().unwrap_or_default();
+
+            return Self {
+                start: CursorPosition {
+                    line: idx + 1,
+                    column: last_line.len() + 1
+                },
+                end: CursorPosition {
+                    line: idx + 1,
+                    column: last_line.len() + 2
+                }
+            }
+        }
+
+        self
+    }
+
     pub fn apply(self, code: &str) -> String {
         if self.start == CursorPosition::EOF {
             return String::from("<EOF>")
         }
 
         let mut lines = code
-            .lines()
+            .split('\n')
             .skip(self.start.line - 1)
             .take(self.end.line - self.start.line + 1)
             .collect::<Vec <_>>();

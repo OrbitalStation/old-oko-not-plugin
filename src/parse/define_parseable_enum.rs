@@ -23,15 +23,10 @@ macro_rules! define_parseable_enum {
 
         impl Parse for $name {
             fn parse(stream: &mut ParseStream) -> Result <Self> {
-                let mut clone;
 
                 $(
-                    clone = stream.clone();
-                    let c_like_concat::concat!($field, _error) = match c_like_concat::concat!($field, $name::parse(&mut clone)) {
-                        Ok(x) => {
-                            *stream = clone;
-                            return Ok(Self::$field(Box::new(x)))
-                        },
+                    let c_like_concat::concat!($field, _error) = match c_like_concat::concat!($field, $name::parse(stream)) {
+                        Ok(x) => return Ok(Self::$field(Box::new(x))),
                         Err(err) => err
                     };
                 )*

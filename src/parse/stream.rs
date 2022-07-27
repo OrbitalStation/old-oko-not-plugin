@@ -53,12 +53,12 @@ pub struct ParseStreamError {
 
 impl ParseStreamError {
     pub fn to_error(self, code: &str, filename: String) -> Error {
-        let applied = self.span.apply(code);
+        let spanned = self.span.apply(code);
 
         Error {
-            span: self.span,
-            message: format!("unexpected token `{applied}`"),
-            lines: applied,
+            span: self.span.eof_or(code),
+            message: format!("unexpected token `{spanned}`"),
+            spanned,
             clarifying: format!("expected {}", self.expected),
             help: self.help,
             filename,
@@ -88,9 +88,7 @@ impl <'a> ParseStream <'a> {
     pub fn embraced_in_figures_or_single <T: Parse, const P: char> (&mut self) -> Result <Punctuated <T, P>> {
         self.trim();
 
-        let mut clone = self.clone();
-        if clone.punct("=").is_ok() {
-            *self = clone;
+        if self.punct("=").is_ok() {
             return Ok(Punctuated(vec![T::parse(self)?]))
         }
 
@@ -105,14 +103,17 @@ impl <'a> ParseStream <'a> {
         self.trim();
 
         if self.code.starts_with(open_delim) {
-            self.offset_by(open_delim.len_utf8());
+            let mut clone = self.clone();
 
-            let punctuated = Punctuated::parse(self)?;
+            clone.offset_by(open_delim.len_utf8());
 
-            self.trim();
+            let punctuated = Punctuated::parse(&mut clone)?;
 
-            return if self.code.starts_with(close_delim) {
-                self.offset_by(close_delim.len_utf8());
+            clone.trim();
+
+            return if clone.code.starts_with(close_delim) {
+                clone.offset_by(close_delim.len_utf8());
+                *self = clone;
                 Ok(punctuated)
             } else {
                 Err(ParseStreamError {
@@ -141,22 +142,26 @@ impl <'a> ParseStream <'a> {
         self.trim();
 
         if self.code.starts_with(delimiter) {
-            let start = self.cursor;
+            let mut clone = self.clone();
 
-            self.offset_by(delimiter.len_utf8());
+            clone.offset_by(delimiter.len_utf8());
 
             let mut previous_was_escaping_sign = false;
 
             let mut offset = 0;
 
-            for char in self.code.chars() {
+            for char in clone.code.chars() {
                 if char == ESCAPING_SIGN {
                     previous_was_escaping_sign = true
                 } else {
                     if char == delimiter && !previous_was_escaping_sign {
-                        let string = self.code[..offset].to_string();
+                        let string = clone.code[..offset].to_string();
 
-                        self.offset_by(offset + delimiter.len_utf8());
+                        clone.offset_by(offset + delimiter.len_utf8());
+
+                        let start = self.cursor;
+
+                        *self = clone;
 
                         return Ok((string, start))
                     }
@@ -167,11 +172,9 @@ impl <'a> ParseStream <'a> {
                 offset += char.len_utf8()
             }
 
-            self.offset_by(self.code.len() - 1);
-
             return Err(ParseStreamError {
                 span: Span::EOF,
-                parsing_depth: self.depth,
+                parsing_depth: ParsingDepth(clone.depth.0 + clone.code.len()),
                 expected: format!("the second closing delimiter - `{delimiter}`"),
                 help: vec![]
             })
@@ -285,8 +288,12 @@ impl <'a> ParseStream <'a> {
     /// Behaves similar to [`ParseStream::ident`]
     ///
     pub fn keyword(&mut self, keyword: &str) -> Result <()> {
-        match self.ident() {
-            Ok(Ident { name, .. }) if name == keyword => Ok(()),
+        let mut clone = self.clone();
+        match clone.ident() {
+            Ok(Ident { name, .. }) if name == keyword => {
+                *self = clone;
+                Ok(())
+            },
             Ok(ident) => Err(ParseStreamError {
                 span: ident.span(),
                 parsing_depth: self.depth,
