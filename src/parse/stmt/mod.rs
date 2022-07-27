@@ -3,7 +3,6 @@ crate::define_parseable_enum! {
 
     FIELDS:
 
-    Entity
     Fn
-    Struct
+    Ty
 }

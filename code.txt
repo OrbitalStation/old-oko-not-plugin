@@ -1,5 +1,7 @@
-struct Health = hp: u8
+ty Vec2 = x: T + y: T
 
-entity Player = Health + Position + PlayerControlled;
+ty Option = None | Some i32
+
+ty Result = Ok bool | Err i8
 
 fn main = "Hello, world!"

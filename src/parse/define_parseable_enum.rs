@@ -1,13 +1,17 @@
 #[macro_export]
 macro_rules! define_parseable_enum {
     (
+        $( #[$( $attrs:tt )*] )*
+        
         NAME = $name:ident
 
         FIELDS: $( $field:ident )*
     ) => {
         use crate::parse::span::*;
         use crate::parse::stream::*;
-        use crate::parse::punctuated::Punctuated;
+
+        #[allow(unused_imports)]
+        use crate::parse::punctuated::*;
 
         $(
             #[allow(non_snake_case)]
@@ -17,6 +21,7 @@ macro_rules! define_parseable_enum {
 
         #[derive(Debug, Clone)]
         #[repr(u8)]
+        $(#[$( $attrs )*])*
         pub enum $name {$(
             $field(Box <c_like_concat::concat!($field, $name)>)
         ),*}
