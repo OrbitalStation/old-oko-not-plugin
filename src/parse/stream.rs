@@ -235,7 +235,7 @@ impl <'a> ParseStream <'a> {
     ///
     /// Tries to parse a keyword `keyword` from the stream.
     ///
-    /// Behaves similar to [`ParseStream::ident`]
+    /// Behaves similar to [`Ident::parse`]
     ///
     pub fn keyword(&mut self, keyword: &str) -> Result <()> {
         let mut clone = self.clone();
