@@ -81,6 +81,24 @@ impl <'a> ParseStream <'a> {
         }
     }
 
+    pub fn number_u8(&mut self) -> Result <u8> {
+        self.trim();
+
+        let non_numeric = self.code.find(|char: char| !char.is_numeric()).unwrap_or(self.code.len());
+        return if let Ok(ok) = self.code[..non_numeric].parse::<u8>() {
+            self.offset_by(ok.to_string().len());
+            Ok(ok)
+        } else {
+            Err(ParseStreamError {
+                span: Span::with_extra_column(self.cursor, 1),
+                parsing_depth: self.depth,
+                expected: String::from("an `u8` number"),
+                help: vec![]
+            })
+        }
+
+    }
+
     pub fn newline(&mut self) -> Result <()> {
         let newline = self.code.find(|char: char| char == LINE_SEPARATOR).ok_or_else(|| ParseStreamError {
             span: Span::with_extra_column(self.cursor, self.code.len()),
@@ -243,6 +261,9 @@ impl <'a> ParseStream <'a> {
 
             ":"
             ";"
+
+            "."
+            ","
 
             "("
             ")"

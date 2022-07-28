@@ -10,6 +10,7 @@ pub mod ty;
 pub mod typed_variable;
 pub mod punctuated;
 pub mod signature;
+pub mod x_times;
 
 #[macro_use]
 pub mod define_parseable_enum;

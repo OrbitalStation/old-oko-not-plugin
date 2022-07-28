@@ -1,15 +1,51 @@
 use super::span::Ident;
 use super::punctuated::Punctuated;
 use super::typed_variable::TypedVariables;
+use super::x_times::XTimes;
 use super::ty::Type;
-use super::stream::{Parse, ParseStream, Result};
-use core::fmt::{Debug, Formatter, Result as FmtResult};
-use std::fmt::Write;
+use super::stream::{Parse, ParseStream, ParseStreamError, Result};
+use crate::span::Span;
+use core::fmt::{Debug, Formatter, Result as FmtResult, Write};
+
+#[derive(Clone)]
+#[repr(u8)]
+pub enum Arg {
+    Named(TypedVariables),
+    Unnamed(XTimes <Type, true>)
+}
+
+impl Debug for Arg {
+    fn fmt(&self, f: &mut Formatter <'_>) -> FmtResult {
+        match self {
+            Self::Named(named) => named.fmt(f),
+            Self::Unnamed(unnamed) => unnamed.fmt(f)
+        }
+    }
+}
+
+impl Parse for Arg {
+    fn parse(stream: &mut ParseStream) -> Result <Self> {
+        if let Ok(ok) = TypedVariables::parse(stream) {
+            return Ok(Self::Named(ok))
+        }
+
+        if let Ok(ok) = XTimes::parse(stream) {
+            return Ok(Self::Unnamed(ok))
+        }
+
+        Err(ParseStreamError {
+            span: Span::with_extra_column(stream.cursor, 1),
+            parsing_depth: stream.depth,
+            expected: String::from("either named(x: T or x y <...>: T) or unnamed(T or T x N) parameters"),
+            help: vec![]
+        })
+    }
+}
 
 #[derive(Clone)]
 pub struct Signature {
     pub name: Ident,
-    pub args: Punctuated <TypedVariables, ',', true>,
+    pub args: Punctuated <Arg, ',', true>,
     pub return_ty: Option <Type>
 }
 
@@ -23,7 +59,7 @@ impl Debug for Signature {
 
         if let Some(ty) = &self.return_ty {
             f.write_str(" -> ")?;
-            f.write_fmt(format_args!("{:?}", ty))?
+            ty.fmt(f)?
         }
 
         Ok(())
