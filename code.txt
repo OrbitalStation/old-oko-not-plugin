@@ -1,3 +1,3 @@
-ty String = inner: *mut **mut u8
+extern clang fn puts(string: *u8) -> i32
 
 fn main = "Hello, world!"

@@ -1,8 +1,7 @@
 use super::span::Ident;
 use super::stream::{Parse, ParseStream, Result, ParseStreamError};
 use crate::span::Span;
-use core::fmt::{Debug, Formatter, Result as FmtResult};
-use std::fmt::Write;
+use core::fmt::{Debug, Formatter, Result as FmtResult, Write};
 
 #[derive(Copy, Clone)]
 pub struct Ptr {
@@ -59,10 +58,19 @@ impl Parse for Ptr {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct Type {
     pub ptr: Ptr,
     pub name: Ident
+}
+
+impl Debug for Type {
+    fn fmt(&self, f: &mut Formatter <'_>) -> FmtResult {
+        f.write_fmt(format_args!("{:?}", self.ptr))?;
+        f.write_str(&self.name.name)?;
+
+        Ok(())
+    }
 }
 
 impl Parse for Type {

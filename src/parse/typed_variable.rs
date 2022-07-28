@@ -1,6 +1,8 @@
 use super::span::Ident;
 use super::ty::Type;
 use super::stream::{Parse, ParseStream, Result};
+use core::fmt::{Debug, Formatter, Result as FmtResult};
+use std::fmt::Write;
 
 ///
 /// A variable name(s) + type
@@ -15,20 +17,35 @@ use super::stream::{Parse, ParseStream, Result};
 ///
 /// `^^^^^^`
 ///
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct TypedVariables {
-    pub name: Vec <Ident>,
+    pub names: Vec <Ident>,
     pub ty: Type
+}
+
+impl Debug for TypedVariables {
+    fn fmt(&self, f: &mut Formatter <'_>) -> FmtResult {
+        for ident in self.names.iter().rev().skip(1).rev() {
+            f.write_str(&ident.name)?;
+            f.write_char(' ')?
+        }
+        f.write_str(&self.names.last().unwrap().name)?;
+
+        f.write_str(": ")?;
+        f.write_fmt(format_args!("{:?}", self.ty))?;
+
+        Ok(())
+    }
 }
 
 impl Parse for TypedVariables {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
-        let name = stream.one_or_more()?;
+        let names = stream.one_or_more()?;
         stream.punct(":")?;
         let ty = Type::parse(stream)?;
         
         Ok(Self {
-            name,
+            names,
             ty
         })
     }

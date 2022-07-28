@@ -9,6 +9,7 @@ pub mod expr;
 pub mod ty;
 pub mod typed_variable;
 pub mod punctuated;
+pub mod signature;
 
 #[macro_use]
 pub mod define_parseable_enum;
