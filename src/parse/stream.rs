@@ -200,36 +200,104 @@ impl <'a> ParseStream <'a> {
         })
     }
 
+    pub fn next_punct(&mut self) -> Result <(&str, Span)> {
+        macro_rules! puncts {
+            ($self:ident, $( $punct:literal )*) => {$(
+                if $self.code.starts_with($punct) {
+                    let span = Span::with_extra_column(self.cursor, $punct.len());
+
+                    $self.offset_by($punct.len());
+                    return Ok(($punct, span))
+                }
+            )*};
+        }
+
+        self.trim();
+
+        puncts! {
+            self,
+
+            "=="
+            "="
+
+            ":"
+            ";"
+
+            "("
+            ")"
+
+            "["
+            "]"
+
+            "{"
+            "}"
+
+            "<"
+            ">"
+
+            "|"
+
+            "+"
+            "-"
+            "*"
+            "/"
+
+            "!"
+        }
+
+        Err(ParseStreamError {
+            span: Span::with_extra_column(self.cursor, 1),
+            parsing_depth: self.depth,
+            expected: String::from("a punctuation token"),
+            help: vec![]
+        })
+    }
+
     ///
     /// Tries to parse a punctuation token from the stream
     ///
     pub fn punct(&mut self, punct: &str) -> Result <()> {
-        self.trim();
-
-        let non_punct_symbol = self.code.find(|char: char| !char.is_ascii_punctuation()).unwrap_or(self.code.len());
-
-        if non_punct_symbol == 0 {
-            Err(ParseStreamError {
-                span: Span::with_extra_column(self.cursor, 1),
+        let mut clone = self.clone();
+        match clone.next_punct() {
+            Ok((parsed, _)) if parsed == punct => {
+                *self = clone;
+                Ok(())
+            },
+            Ok((_, span)) => Err(ParseStreamError {
+                span,
                 parsing_depth: self.depth,
                 expected: format!("`{punct}`"),
                 help: vec![]
-            })
-        } else {
-            let parsed = &self.code[..non_punct_symbol];
-
-            if punct == parsed {
-                self.offset_by(non_punct_symbol);
-                Ok(())
-            } else {
-                Err(ParseStreamError {
-                    span: Span::with_extra_column(self.cursor, parsed.len()),
-                    parsing_depth: self.depth,
-                    expected: format!("`{punct}`"),
-                    help: vec![]
-                })
-            }
+            }),
+            Err(err) => Err(err.with_custom_expected(format!("`{punct}`")))
         }
+
+        // self.trim();
+        //
+        // let non_punct_symbol = self.code.find(|char: char| !char.is_ascii_punctuation()).unwrap_or(self.code.len());
+        //
+        // if non_punct_symbol == 0 {
+        //     Err(ParseStreamError {
+        //         span: Span::with_extra_column(self.cursor, 1),
+        //         parsing_depth: self.depth,
+        //         expected: format!("`{punct}`"),
+        //         help: vec![]
+        //     })
+        // } else {
+        //     let parsed = &self.code[..non_punct_symbol];
+        //
+        //     if punct == parsed {
+        //         self.offset_by(non_punct_symbol);
+        //         Ok(())
+        //     } else {
+        //         Err(ParseStreamError {
+        //             span: Span::with_extra_column(self.cursor, parsed.len()),
+        //             parsing_depth: self.depth,
+        //             expected: format!("`{punct}`"),
+        //             help: vec![]
+        //         })
+        //     }
+        // }
     }
 
     ///
