@@ -118,7 +118,7 @@ impl <'a> ParseStream <'a> {
         self.code.is_empty()
     }
 
-    pub fn embraced_in_figures_or_single <T: Parse, const P: char> (&mut self) -> Result <Punctuated <T, P>> {
+    pub fn embraced_in_figures_or_single <T: Parse, const P: char, const IS_ZERO_ALLOWED: bool> (&mut self) -> Result <Punctuated <T, P, IS_ZERO_ALLOWED>> {
         self.trim();
 
         if self.punct("=").is_ok() {
@@ -128,11 +128,11 @@ impl <'a> ParseStream <'a> {
         self.embraced_in_figures()
     }
 
-    pub fn embraced_in_figures <T: Parse, const P: char> (&mut self) -> Result <Punctuated <T, P>> {
-        self.embraced::<T, P>('{', '}')
+    pub fn embraced_in_figures <T: Parse, const P: char, const IS_ZERO_ALLOWED: bool> (&mut self) -> Result <Punctuated <T, P, IS_ZERO_ALLOWED>> {
+        self.embraced::<T, P, IS_ZERO_ALLOWED>('{', '}')
     }
 
-    pub fn embraced <T: Parse, const P: char> (&mut self, open_delim: char, close_delim: char) -> Result <Punctuated <T, P>> {
+    pub fn embraced <T: Parse, const P: char, const IS_ZERO_ALLOWED: bool> (&mut self, open_delim: char, close_delim: char) -> Result <Punctuated <T, P, IS_ZERO_ALLOWED>> {
         self.trim();
 
         if self.code.starts_with(open_delim) {

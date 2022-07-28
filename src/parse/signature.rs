@@ -9,7 +9,7 @@ use std::fmt::Write;
 #[derive(Clone)]
 pub struct Signature {
     pub name: Ident,
-    pub args: Punctuated <TypedVariables, ','>,
+    pub args: Punctuated <TypedVariables, ',', true>,
     pub return_ty: Option <Type>
 }
 
