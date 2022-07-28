@@ -81,6 +81,27 @@ impl <'a> ParseStream <'a> {
         }
     }
 
+    pub fn newline(&mut self) -> Result <()> {
+        let newline = self.code.find(|char: char| char == LINE_SEPARATOR).ok_or_else(|| ParseStreamError {
+            span: Span::with_extra_column(self.cursor, self.code.len()),
+            parsing_depth: self.depth,
+            expected: String::from("newline"),
+            help: vec![]
+        })?;
+
+        if let Some(wrong) = self.code[..newline].find(|char: char| !char.is_whitespace()) {
+            Err(ParseStreamError {
+                span: Span::with_extra_column(self.cursor.extend_column_by(wrong), 1),
+                parsing_depth: self.depth,
+                expected: String::from("newline"),
+                help: vec![]
+            })
+        } else {
+            self.offset_by(newline);
+            Ok(())
+        }
+    }
+
     pub fn one_or_more <T: Parse> (&mut self) -> Result <Vec <T>> {
         self.trim();
 
@@ -271,33 +292,6 @@ impl <'a> ParseStream <'a> {
             }),
             Err(err) => Err(err.with_custom_expected(format!("`{punct}`")))
         }
-
-        // self.trim();
-        //
-        // let non_punct_symbol = self.code.find(|char: char| !char.is_ascii_punctuation()).unwrap_or(self.code.len());
-        //
-        // if non_punct_symbol == 0 {
-        //     Err(ParseStreamError {
-        //         span: Span::with_extra_column(self.cursor, 1),
-        //         parsing_depth: self.depth,
-        //         expected: format!("`{punct}`"),
-        //         help: vec![]
-        //     })
-        // } else {
-        //     let parsed = &self.code[..non_punct_symbol];
-        //
-        //     if punct == parsed {
-        //         self.offset_by(non_punct_symbol);
-        //         Ok(())
-        //     } else {
-        //         Err(ParseStreamError {
-        //             span: Span::with_extra_column(self.cursor, parsed.len()),
-        //             parsing_depth: self.depth,
-        //             expected: format!("`{punct}`"),
-        //             help: vec![]
-        //         })
-        //     }
-        // }
     }
 
     ///

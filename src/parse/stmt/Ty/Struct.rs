@@ -20,6 +20,7 @@ pub struct StructTyStmtBody {
 impl Parse for StructTyStmtBody {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
         let fields = Punctuated::parse(stream)?;
+        stream.newline()?;
 
         Ok(Self {
             fields

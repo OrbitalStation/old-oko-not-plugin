@@ -43,6 +43,7 @@ pub struct EnumTyStmtBody {
 impl Parse for EnumTyStmtBody {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
         let fields = Punctuated::parse(stream)?;
+        stream.newline()?;
 
         Ok(Self {
             fields

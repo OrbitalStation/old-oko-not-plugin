@@ -1,3 +1,3 @@
-ty String = inner: **mut u8
+ty String = inner: *mut **mut u8
 
 fn main = "Hello, world!"

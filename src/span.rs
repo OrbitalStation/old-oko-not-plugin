@@ -41,6 +41,13 @@ impl CursorPosition {
             column: self.column + len
         }
     }
+
+    pub const fn shrink_column_by(self, len: usize) -> Self {
+        Self {
+            line: self.line,
+            column: self.column - len
+        }
+    }
 }
 
 /// The precise position of an item in the file
@@ -73,6 +80,13 @@ impl Span {
         Self {
             start: cursor,
             end: cursor.extend_column_by(extra_column)
+        }
+    }
+
+    pub const fn with_shrunk_column(cursor: CursorPosition, shrunk_column: usize) -> Self {
+        Self {
+            start: cursor,
+            end: cursor.shrink_column_by(shrunk_column)
         }
     }
 
