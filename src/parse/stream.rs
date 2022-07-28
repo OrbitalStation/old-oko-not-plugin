@@ -23,9 +23,9 @@ pub const ESCAPING_SIGN: char = '\\';
 
 #[derive(Clone)]
 pub struct ParseStream <'a> {
-    code: &'a str,
-    cursor: CursorPosition,
-    depth: ParsingDepth
+    pub code: &'a str,
+    pub cursor: CursorPosition,
+    pub depth: ParsingDepth
 }
 
 #[derive(Clone, Debug)]
@@ -233,75 +233,13 @@ impl <'a> ParseStream <'a> {
     }
 
     ///
-    /// Tries to parse an identifier from the stream.
-    ///
-    /// It is assumed that the word is parsed successfully
-    ///   if the current stream cursor points at the `word` itself
-    ///   (excluding all the whitespaces before) and there are no
-    ///   alphanumerical symbols *after*
-    ///
-    /// # Examples
-    ///
-    /// The `ident` = `human`
-    ///
-    /// This could be parsed successfully:
-    ///
-    /// `human is an animal`
-    ///
-    /// And this too:
-    ///
-    /// `       human is an animal even with whitespaces before it`
-    ///
-    /// But this could *not*..:
-    ///
-    /// `humans must die`
-    ///
-    /// ...because of the `s` after the word
-    ///
-    pub fn ident(&mut self) -> Result <Ident> {
-        self.trim();
-
-        let first_char_len = match self.code.chars().next() {
-            // First character is alphabetic
-            Some(char) if char.is_alphabetic() => char.len_utf8(),
-
-            // Faced non-alphabetic symbol; error
-            Some(_) => return Err(ParseStreamError {
-                span: Span::with_extra_column(self.cursor, 1),
-                parsing_depth: self.depth,
-                expected: String::from("ident"),
-                help: vec![]
-            }),
-
-            // Unexpected EOF in place of an ident
-            None => return Err(ParseStreamError {
-                span: Span::EOF,
-                parsing_depth: self.depth,
-                expected: String::from("ident"),
-                help: vec![]
-            })
-        };
-
-
-        let end = self.code[first_char_len..].find(|char: char| !char.is_alphanumeric()).unwrap_or(self.code.len() - 1) + 1;
-
-        let ident = self.code[..end].to_string();
-
-        let cursor = self.cursor;
-
-        self.offset_by(ident.len());
-
-        Ok(Ident::new(ident, cursor))
-    }
-
-    ///
     /// Tries to parse a keyword `keyword` from the stream.
     ///
     /// Behaves similar to [`ParseStream::ident`]
     ///
     pub fn keyword(&mut self, keyword: &str) -> Result <()> {
         let mut clone = self.clone();
-        match clone.ident() {
+        match Ident::parse(&mut clone) {
             Ok(Ident { name, .. }) if name == keyword => {
                 *self = clone;
                 Ok(())
@@ -315,14 +253,12 @@ impl <'a> ParseStream <'a> {
             Err(err) => Err(err.with_custom_expected(format!("keyword `{keyword}`")))
         }
     }
-}
 
-impl <'a> ParseStream <'a> {
     pub fn trim(&mut self) {
         self.offset_by(self.code.find(|char: char| !char.is_whitespace()).unwrap_or(self.code.len()));
     }
 
-    fn offset_by(&mut self, offset: usize) {
+    pub fn offset_by(&mut self, offset: usize) {
         for char in self.code[..offset].chars() {
             if char == LINE_SEPARATOR {
                 self.cursor.line += 1;

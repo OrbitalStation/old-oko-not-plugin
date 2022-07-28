@@ -1,6 +1,6 @@
 use core::fmt::{Debug, Result as FmtResult, Formatter};
 use crate::span::{Span, CursorPosition};
-use super::stream::{Parse, ParseStream, Result as StreamResult};
+use super::stream::{Parse, ParseStream, Result as StreamResult, ParseStreamError};
 
 ///
 /// A string value with a span attached to it
@@ -12,9 +12,66 @@ pub struct Ident {
 }
 
 impl Parse for Ident {
-    #[inline(always)]
+    ///
+    /// Tries to parse an identifier from the stream.
+    ///
+    /// It is assumed that the word is parsed successfully
+    ///   if the current stream cursor points at the `word` itself
+    ///   (excluding all the whitespaces before) and there are no
+    ///   alphanumerical symbols *after*
+    ///
+    /// # Examples
+    ///
+    /// The `ident` = `human`
+    ///
+    /// This could be parsed successfully:
+    ///
+    /// `human is an animal`
+    ///
+    /// And this too:
+    ///
+    /// `       human is an animal even with whitespaces before it`
+    ///
+    /// But this could *not*..:
+    ///
+    /// `humans must die`
+    ///
+    /// ...because of the `s` after the word
+    ///
     fn parse(stream: &mut ParseStream) -> StreamResult <Self> {
-        stream.ident()
+        stream.trim();
+
+        let first_char_len = match stream.code.chars().next() {
+            // First character is alphabetic
+            Some(char) if char.is_alphabetic() => char.len_utf8(),
+
+            // Faced non-alphabetic symbol; error
+            Some(_) => return Err(ParseStreamError {
+                span: Span::with_extra_column(stream.cursor, 1),
+                parsing_depth: stream.depth,
+                expected: String::from("ident"),
+                help: vec![]
+            }),
+
+            // Unexpected EOF in place of an ident
+            None => return Err(ParseStreamError {
+                span: Span::EOF,
+                parsing_depth: stream.depth,
+                expected: String::from("ident"),
+                help: vec![]
+            })
+        };
+
+
+        let end = stream.code[first_char_len..].find(|char: char| !char.is_alphanumeric()).unwrap_or(stream.code.len() - 1) + 1;
+
+        let ident = stream.code[..end].to_string();
+
+        let cursor = stream.cursor;
+
+        stream.offset_by(ident.len());
+
+        Ok(Self::new(ident, cursor))
     }
 }
 

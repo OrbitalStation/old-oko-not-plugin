@@ -35,7 +35,7 @@ pub struct TyStmt {
 impl Parse for TyStmt {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
         stream.keyword("ty")?;
-        let name = stream.ident()?;
+        let name = Ident::parse(stream)?;
         stream.punct("=")?;
         let body = TyStmtBody::parse(stream)?;
 

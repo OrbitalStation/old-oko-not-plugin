@@ -8,7 +8,7 @@ pub struct Type {
 
 impl Parse for Type {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
-        let name = stream.ident()?;
+        let name = Ident::parse(stream)?;
 
         Ok(Self {
             name

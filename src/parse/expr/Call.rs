@@ -8,7 +8,7 @@ pub struct CallExpr {
 
 impl Parse for CallExpr {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
-        let fun = stream.ident()?;
+        let fun = Ident::parse(stream)?;
         stream.punct("(")?;
         let args = Punctuated::parse(stream)?;
         stream.punct(")")?;
