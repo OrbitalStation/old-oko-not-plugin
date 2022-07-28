@@ -1,7 +1,3 @@
-ty Vec2 = x: T + y: T
-
-ty Option = None | Some i32
-
-ty Result = Ok bool | Err i8
+ty Vec2 = x y: T
 
 fn main = "Hello, world!"

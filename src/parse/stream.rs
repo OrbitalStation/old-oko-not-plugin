@@ -81,6 +81,18 @@ impl <'a> ParseStream <'a> {
         }
     }
 
+    pub fn one_or_more <T: Parse> (&mut self) -> Result <Vec <T>> {
+        self.trim();
+
+        let mut result = vec![T::parse(self)?];
+
+        while let Ok(x) = T::parse(self) {
+            result.push(x)
+        }
+
+        Ok(result)
+    }
+
     pub fn is_empty(&self) -> bool {
         self.code.is_empty()
     }
