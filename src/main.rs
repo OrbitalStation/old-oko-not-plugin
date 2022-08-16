@@ -1,5 +1,5 @@
 fn main() -> oko::error::Result <()> {
-    println!("{:#?}", oko::parse::parse("/home/rtarasenko/oko-project/src/core.oko")?);
+    println!("{:#?}", oko::parse::parse("src/core.oko")?);
 
     oko::error::Result(Ok(()))
 }
