@@ -3,6 +3,7 @@ use super::ty::Type;
 use super::stream::{Parse, ParseStream, Result};
 use core::fmt::{Debug, Formatter, Result as FmtResult};
 use std::fmt::Write;
+use crate::span::Span;
 
 ///
 /// A variable name(s) + type
@@ -21,6 +22,15 @@ use std::fmt::Write;
 pub struct TypedVariables {
     pub names: Vec <Ident>,
     pub ty: Type
+}
+
+impl TypedVariables {
+    pub fn span(&self) -> Span {
+        Span {
+            start: self.names[0].span().start,
+            end: self.ty.span.end
+        }
+    }
 }
 
 impl Debug for TypedVariables {

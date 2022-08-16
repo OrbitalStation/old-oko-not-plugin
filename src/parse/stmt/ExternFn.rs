@@ -1,7 +1,7 @@
 use super::*;
 use super::super::signature::Signature;
 use crate::span::Span;
-use core::fmt::{Debug, Write, Formatter, Result as FmtResult};
+use core::fmt::{Debug, Formatter, Result as FmtResult};
 
 #[derive(Copy, Clone)]
 #[repr(u8)]
@@ -35,15 +35,17 @@ impl Parse for FFILanguage {
 #[derive(Clone)]
 pub struct ExternFnStmt {
     pub lang: FFILanguage,
+    pub name: Ident,
     pub sig: Signature
 }
 
 impl Debug for ExternFnStmt {
     fn fmt(&self, f: &mut Formatter <'_>) -> FmtResult {
         f.write_str("extern ")?;
-        f.write_fmt(format_args!("{:?}", self.lang))?;
-        f.write_char(' ')?;
-        f.write_fmt(format_args!("{:?}", self.sig))?;
+        self.lang.fmt(f)?;
+        f.write_str(" fn ")?;
+        f.write_str(&self.name.name)?;
+        self.sig.fmt(f)?;
 
         Ok(())
     }
@@ -53,10 +55,13 @@ impl Parse for ExternFnStmt {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
         stream.keyword("extern")?;
         let lang = FFILanguage::parse(stream)?;
+        stream.keyword("fn")?;
+        let name = Ident::parse(stream)?;
         let sig = Signature::parse(stream)?;
 
         Ok(Self {
             lang,
+            name,
             sig
         })
     }

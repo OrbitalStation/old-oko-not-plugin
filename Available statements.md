@@ -8,7 +8,7 @@
 
 # Fn statement
   
-  `fn IDENT FN_BODY`
+  `fn SIGNATURE FN_BODY`
 
   *FN_BODY* ::= `= EXPR` | `BLOCK_EXPR`
 
@@ -47,3 +47,7 @@
   *ENUM_TYPE_BODY* ::= `$( IDENT $( TYPE )? )|+`
 
   *STRUCT_TYPE_BODY* ::= `$( TYPED_VARIABLES )+*`
+
+# Affix operator
+
+  `operator $( prefix | suffix ) "suffix" SIGNATURE FN_BODY`

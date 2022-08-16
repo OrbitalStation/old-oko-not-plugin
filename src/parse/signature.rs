@@ -1,4 +1,3 @@
-use super::span::Ident;
 use super::punctuated::Punctuated;
 use super::typed_variable::TypedVariables;
 use super::x_times::XTimes;
@@ -44,15 +43,12 @@ impl Parse for Arg {
 
 #[derive(Clone)]
 pub struct Signature {
-    pub name: Ident,
     pub args: Punctuated <Arg, ',', true>,
     pub return_ty: Option <Type>
 }
 
 impl Debug for Signature {
     fn fmt(&self, f: &mut Formatter <'_>) -> FmtResult {
-        f.write_str("fn ")?;
-        f.write_str(&self.name.name)?;
         f.write_char('(')?;
         self.args.debug(f)?;
         f.write_char(')')?;
@@ -68,8 +64,6 @@ impl Debug for Signature {
 
 impl Parse for Signature {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
-        stream.keyword("fn")?;
-        let name = Ident::parse(stream)?;
         let args = stream.embraced('(', ')')?;
 
         let return_ty = if stream.punct("->").is_ok() {
@@ -79,7 +73,6 @@ impl Parse for Signature {
         };
 
         Ok(Self {
-            name,
             args,
             return_ty
         })
