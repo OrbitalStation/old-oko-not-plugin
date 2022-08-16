@@ -1,4 +1,12 @@
-# Fn statement.
+# Comments
+
+  `#( Comments )#`
+
+  `#( aaa #( bbb #( ccc )# ddd #( eee )# fff )# ggg  )#`
+
+ Comments support nesting
+
+# Fn statement
   
   `fn IDENT FN_BODY`
 
@@ -10,7 +18,7 @@
 
   *BLOCK_EXPR* ::= `{ $( EXPR )* }`
 
-# Extern fn statement.
+# Extern fn statement
 
   `extern FFI_LANGUAGE SIGNATURE`
 
@@ -30,7 +38,7 @@
 
   *POINTER* = `* $( mut )?`
 
-# Type statement.
+# Type statement
 
   `ty IDENT = TYPE_BODY`
 
