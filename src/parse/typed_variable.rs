@@ -40,10 +40,13 @@ impl Debug for TypedVariables {
 
 impl Parse for TypedVariables {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
-        let names = stream.one_or_more()?;
-        stream.punct(":")?;
-        let ty = Type::parse(stream)?;
-        
+        let mut clone = stream.clone();
+
+        let names = clone.one_or_more()?;
+        clone.punct(":")?;
+        let ty = Type::parse(&mut clone)?;
+        *stream = clone;
+
         Ok(Self {
             names,
             ty

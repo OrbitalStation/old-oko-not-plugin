@@ -7,11 +7,13 @@ macro_rules! define_parseable_enum {
 
         FIELDS: $( $field:ident )*
     ) => {
-        use crate::parse::span::*;
         use crate::parse::stream::*;
 
         #[allow(unused_imports)]
         use crate::parse::punctuated::*;
+
+        #[allow(unused_imports)]
+        use crate::parse::span::*;
 
         $(
             #[allow(non_snake_case)]
