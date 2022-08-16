@@ -4,4 +4,5 @@ crate::define_parseable_enum! {
     FIELDS:
 
     Call
+    Block
 }

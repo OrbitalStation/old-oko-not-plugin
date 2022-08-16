@@ -1,6 +1,14 @@
 # Fn statement.
   
-  `fn IDENT = "STRING"`
+  `fn IDENT FN_BODY`
+
+  *FN_BODY* ::= `= EXPR` | `BLOCK_EXPR`
+
+  *EXPR* ::= `CALL_EXPR` | `BLOCK_EXPR`
+
+  *CALL_EXPR* ::= `IDENT($( EXPR ),*)`
+
+  *BLOCK_EXPR* ::= `{ $( EXPR )* }`
 
 # Extern fn statement.
 

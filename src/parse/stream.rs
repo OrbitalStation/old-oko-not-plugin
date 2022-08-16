@@ -132,23 +132,35 @@ impl <'a> ParseStream <'a> {
         Ok(result)
     }
 
+    pub fn parse_until_error <T: Parse> (&mut self) -> Result <Vec <T>> {
+        self.trim();
+
+        let mut result = vec![];
+
+        while let Ok(x) = T::parse(self) {
+            result.push(x)
+        }
+
+        Ok(result)
+    }
+
     pub fn is_empty(&self) -> bool {
         self.code.is_empty()
     }
 
-    pub fn embraced_in_figures_or_single <T: Parse, const P: char, const IS_ZERO_ALLOWED: bool> (&mut self) -> Result <Punctuated <T, P, IS_ZERO_ALLOWED>> {
-        self.trim();
+    // pub fn embraced_in_figures_or_single <T: Parse, const P: char, const IS_ZERO_ALLOWED: bool> (&mut self) -> Result <Punctuated <T, P, IS_ZERO_ALLOWED>> {
+    //     self.trim();
+    //
+    //     if self.punct("=").is_ok() {
+    //         return Ok(Punctuated(vec![T::parse(self)?]))
+    //     }
+    //
+    //     self.embraced_in_figures()
+    // }
 
-        if self.punct("=").is_ok() {
-            return Ok(Punctuated(vec![T::parse(self)?]))
-        }
-
-        self.embraced_in_figures()
-    }
-
-    pub fn embraced_in_figures <T: Parse, const P: char, const IS_ZERO_ALLOWED: bool> (&mut self) -> Result <Punctuated <T, P, IS_ZERO_ALLOWED>> {
-        self.embraced::<T, P, IS_ZERO_ALLOWED>('{', '}')
-    }
+    // pub fn embraced_in_figures <T: Parse, const P: char, const IS_ZERO_ALLOWED: bool> (&mut self) -> Result <Punctuated <T, P, IS_ZERO_ALLOWED>> {
+    //     self.embraced::<T, P, IS_ZERO_ALLOWED>('{', '}')
+    // }
 
     pub fn embraced <T: Parse, const P: char, const IS_ZERO_ALLOWED: bool> (&mut self, open_delim: char, close_delim: char) -> Result <Punctuated <T, P, IS_ZERO_ALLOWED>> {
         self.trim();

@@ -3,7 +3,7 @@ use super::*;
 #[derive(Debug, Clone)]
 pub struct CallExpr {
     pub fun: Ident,
-    pub args: Punctuated <Expr, ','>
+    pub args: Punctuated <Expr, ',', true>
 }
 
 impl Parse for CallExpr {
