@@ -11,6 +11,7 @@ pub mod typed_variable;
 pub mod punctuated;
 pub mod signature;
 pub mod x_times;
+pub mod comments;
 
 #[macro_use]
 pub mod define_parseable_enum;
@@ -24,6 +25,7 @@ use stmt::Stmt;
 ///
 pub fn parse(filename: &str) -> Result <Vec <Stmt>> {
     let code = std::fs::read_to_string(filename).expect("failed to read file");
+    let code = comments::remove_non_documenting_comments(code);
     let mut stream = ParseStream::new(&code);
 
     let mut vec = vec![];

@@ -5,6 +5,7 @@ use core::ops::{Try, FromResidual, ControlFlow};
 use core::convert::Infallible;
 use owo_colors::*;
 
+#[repr(transparent)]
 pub struct Result <T> (pub core::result::Result <T, Error>);
 
 impl <T> FromResidual for Result <T> {
