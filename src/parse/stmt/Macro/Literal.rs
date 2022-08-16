@@ -39,7 +39,7 @@ pub enum LiteralType {
 }
 
 #[derive(Debug, Clone)]
-pub struct LiteralOperatorStmtBody {
+pub struct LiteralMacroStmtBody {
     pub affix: Affix,
     pub lit: DoubleQuotedString,
     pub ty: LiteralType,
@@ -47,7 +47,7 @@ pub struct LiteralOperatorStmtBody {
     pub body: Expr
 }
 
-impl Parse for LiteralOperatorStmtBody {
+impl Parse for LiteralMacroStmtBody {
     fn parse(stream: &mut ParseStream) -> Result <Self> {
         let affix = Affix::parse(stream)?;
         let lit = stream.double_quoted_string()?;

@@ -6,5 +6,5 @@ crate::define_parseable_enum! {
     Fn
     Ty
     ExternFn
-    Operator
+    Macro
 }

@@ -48,6 +48,6 @@
 
   *STRUCT_TYPE_BODY* ::= `$( TYPED_VARIABLES )+*`
 
-# Affix operator
+# Affix macro
 
-  `operator $( prefix | suffix ) "suffix" SIGNATURE FN_BODY`
+  `macro $( prefix | suffix ) "suffix" SIGNATURE FN_BODY`
